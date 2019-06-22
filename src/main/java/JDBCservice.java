@@ -12,7 +12,8 @@ public class JDBCservice {
     }
 
     //add an item
-    public int Create(String name, int amount) throws SQLException {
+    //returns the id of the item
+    public int addItem(String name, int amount) throws SQLException {
         Statement st = connection.createStatement();
         st.executeUpdate("insert into items (name, amount) values ('" + name + "', " + amount + ")");
         st = connection.createStatement();
@@ -22,51 +23,59 @@ public class JDBCservice {
     }
 
 
-    public ResultSet Read() throws SQLException {
+    public ResultSet selectAllFromItems() throws SQLException {
         Statement test = connection.createStatement();
         return test.executeQuery("SELECT * FROM items");
     }
+    public ResultSet selectAllFromGroups() throws SQLException {
+        Statement test = connection.createStatement();
+        return test.executeQuery("SELECT * FROM groups");
+    }
+    public ResultSet selectAllFromUsers() throws SQLException {
+        Statement test = connection.createStatement();
+        return test.executeQuery("SELECT * FROM users");
+    }
 
-    public ResultSet GetById(int id) throws SQLException {
+    public ResultSet getByID(int id) throws SQLException {
         Statement st = connection.createStatement();
         return st.executeQuery("select * from items where id="+id+";");
     }
 
-    public void UpdateAmountByID(int id, int updatedAmount) throws SQLException {
+    public void updateAmountByID(int id, int updatedAmount) throws SQLException {
         Statement test = connection.createStatement();
         test.executeUpdate("update items set amount=" + updatedAmount + " where id=" + id + ";");
     }
-    public void UpdateByID(int id, String updatedName, int updatedAmount) throws SQLException {
+    public void updateByID(int id, String updatedName, int updatedAmount) throws SQLException {
         Statement test = connection.createStatement();
         test.executeUpdate("update items set amount=" + updatedAmount + " where id=" + id + ";");
         test.executeUpdate("update items set name='" + updatedName + "' where id=" + id + ";");
     }
 
 
-    public void UpdateAmountByName(String name, int updatedAmount) throws SQLException {
+    public void updateAmountByName(String name, int updatedAmount) throws SQLException {
         Statement test = connection.createStatement();
         test.executeUpdate("update items set amount=" + updatedAmount + " where name='" + name + "';");
     }
 
-    public void DeleteByID(int id) throws SQLException {
+    public void deleteByID(int id) throws SQLException {
         Statement test = connection.createStatement();
         test.executeUpdate("delete from items where id=" + id + ";");
     }
 
-    public void DeleteByName(String name) throws SQLException {
+    public void deleteByName(String name) throws SQLException {
         Statement test = connection.createStatement();
         test.executeUpdate("delete from items where name='" + name + "';");
     }
 
-    public ResultSet ListByName() throws SQLException{
+    public ResultSet listByName() throws SQLException{
         Statement test = connection.createStatement();
        return test.executeQuery("select * from items order by name");
     }
-    public ResultSet ListByID() throws SQLException{
+    public ResultSet listByID() throws SQLException{
         Statement test = connection.createStatement();
         return test.executeQuery("select * from items order by id");
     }
-    public ResultSet ListByAmount() throws SQLException{
+    public ResultSet listByAmount() throws SQLException{
         Statement test = connection.createStatement();
         return test.executeQuery("select * from items order by amount");
     }

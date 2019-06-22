@@ -22,7 +22,7 @@ public class MyHttpServer {
         //server.createContext("/api/item/id", new ItemIdHandler());
         server.start();
         jdbc = new JDBCservice();
-        ResultSet all = jdbc.Read();
+        ResultSet all = jdbc.selectAllFromItems();
         while (all.next()) {
             server.createContext("/api/item/" + all.getInt("id"), new ItemIdHandler(all.getInt("id")));
         }
@@ -92,12 +92,12 @@ public class MyHttpServer {
                     System.out.println(json.getJSONObject("item").getString("name"));
 
                     try{
-                        if (jdbc.GetById(json.getInt("id"))!=null){
+                        if (jdbc.getByID(json.getInt("id"))!=null){
                             if (json.getJSONObject("item").getInt("amount")<0){
                                 exchange.sendResponseHeaders(409, -1);
                             }
                             else {
-                                jdbc.UpdateByID(json.getInt("id"), json.getJSONObject("item").getString("name"), json.getJSONObject("item").getInt("amount"));
+                                jdbc.updateByID(json.getInt("id"), json.getJSONObject("item").getString("name"), json.getJSONObject("item").getInt("amount"));
                                 exchange.sendResponseHeaders(204, -1);
                             }
                         }
@@ -120,7 +120,7 @@ public class MyHttpServer {
                             exchange.sendResponseHeaders(409, -1);
                         }
                         else {
-                            int id = jdbc.Create(json.getString("name"), json.getInt("amount"));
+                            int id = jdbc.addItem(json.getString("name"), json.getInt("amount"));
                             System.out.println("id");
                             builder.append(id);
                             exchange.sendResponseHeaders(200, builder.toString().getBytes().length);
@@ -170,7 +170,7 @@ public class MyHttpServer {
                     if (Integer.parseInt(uri[3]) == id) {
                        json.put("id", id);
                        try {
-                           ResultSet set = jdbc.GetById(id);
+                           ResultSet set = jdbc.getByID(id);
                            set.next();
                            json.put("name", set.getString("name"));
                            json.put("amount", set.getString("amount"));
@@ -188,7 +188,7 @@ public class MyHttpServer {
                 } else if (exchange.getRequestMethod().equalsIgnoreCase("DELETE")) {
                     try {
                         if (Integer.parseInt(uri[3]) == id) {
-                            jdbc.DeleteByID(id);
+                            jdbc.deleteByID(id);
                             exchange.sendResponseHeaders(204,-1);
                             server.removeContext("api/item/"+id);
                         }
