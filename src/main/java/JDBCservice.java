@@ -13,9 +13,9 @@ public class JDBCservice {
 
     //add an item
     //returns the id of the item
-    public int addItem(String name, int amount) throws SQLException {
+    public int addItem(String name, int amount, int groupID) throws SQLException {
         Statement st = connection.createStatement();
-        st.executeUpdate("insert into items (name, amount) values ('" + name + "', " + amount + ")");
+        st.executeUpdate("insert into items (name, amount, groupID) values ('" + name + "', " + amount + ", "+groupID+")");
         st = connection.createStatement();
         ResultSet resultSet = st.executeQuery("select * from items where name='"+name+"';");
         resultSet.next();

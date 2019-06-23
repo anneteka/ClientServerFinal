@@ -24,7 +24,9 @@ public class MyHttpServer {
         jdbc = new JDBCservice();
         ResultSet all = jdbc.selectAllFromItems();
         while (all.next()) {
-            server.createContext("/api/item/" + all.getInt("id"), new ItemIdHandler(all.getInt("id")));
+            System.out.println(all.getInt("id"));
+            ItemIdHandler it = new ItemIdHandler(all.getInt("id"));
+            server.createContext("/api/item/" + all.getInt("id"), it);
         }
     }
 
@@ -117,14 +119,15 @@ public class MyHttpServer {
                         if (json.getInt("amount") < 0) {
                             exchange.sendResponseHeaders(409, -1);
                         } else {
-                            int id = jdbc.addItem(json.getString("name"), json.getInt("amount"));
+                            int id = jdbc.addItem(json.getString("name"), json.getInt("amount"), json.getInt("groupID"));
                             System.out.println("id");
                             builder.append(id);
                             exchange.sendResponseHeaders(200, builder.toString().getBytes().length);
                             OutputStream os = exchange.getResponseBody();
                             os.write(builder.toString().getBytes());
                             os.close();
-                            server.createContext("api/item" + id, new ItemIdHandler(id));
+                            server.createContext("/api/item/" + id, new ItemIdHandler(id));
+
 
                         }
                     } catch (SQLException e) {
@@ -151,6 +154,7 @@ public class MyHttpServer {
 
         // /api/good/{id}
         ItemIdHandler(int id) {
+            System.out.println("new itemIDhandler "+id);
             this.id = id;
         }
 
