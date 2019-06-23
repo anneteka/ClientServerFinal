@@ -91,21 +91,19 @@ public class MyHttpServer {
                     System.out.println(json.toMap());
                     System.out.println(json.getJSONObject("item").getString("name"));
 
-                    try{
-                        if (jdbc.getByID(json.getInt("id"))!=null){
-                            if (json.getJSONObject("item").getInt("amount")<0){
+                    try {
+                        if (jdbc.getItemByID(json.getInt("id")) != null) {
+                            if (json.getJSONObject("item").getInt("amount") < 0) {
                                 exchange.sendResponseHeaders(409, -1);
-                            }
-                            else {
-                                jdbc.updateByID(json.getInt("id"), json.getJSONObject("item").getString("name"), json.getJSONObject("item").getInt("amount"));
+                            } else {
+                                jdbc.updateItemByID
+                                        (json.getInt("id"), json.getInt("groupID"), json.getString("name"), json.getInt("amount"));
                                 exchange.sendResponseHeaders(204, -1);
                             }
-                        }
-                        else{
+                        } else {
                             exchange.sendResponseHeaders(404, -1);
                         }
-                    }
-                    catch (SQLException e){
+                    } catch (SQLException e) {
 
                     }
 
@@ -116,10 +114,9 @@ public class MyHttpServer {
 
 
                     try {
-                        if (json.getInt("amount")<0){
+                        if (json.getInt("amount") < 0) {
                             exchange.sendResponseHeaders(409, -1);
-                        }
-                        else {
+                        } else {
                             int id = jdbc.addItem(json.getString("name"), json.getInt("amount"));
                             System.out.println("id");
                             builder.append(id);
@@ -133,7 +130,7 @@ public class MyHttpServer {
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
-                  //  exchange.sendResponseHeaders(200, builder.toString().getBytes().length);
+                    //  exchange.sendResponseHeaders(200, builder.toString().getBytes().length);
 
 
                     // ---------------------------- DELETE -----------------------------
@@ -168,16 +165,16 @@ public class MyHttpServer {
                 if (exchange.getRequestMethod().equalsIgnoreCase("GET")) {
 
                     if (Integer.parseInt(uri[3]) == id) {
-                       json.put("id", id);
-                       try {
-                           ResultSet set = jdbc.getByID(id);
-                           set.next();
-                           json.put("name", set.getString("name"));
-                           json.put("amount", set.getString("amount"));
-                       }
-                       catch (SQLException e){
+                        json.put("id", id);
+                        try {
+                            ResultSet set = jdbc.getItemByID(id);
+                            set.next();
+                            json.put("name", set.getString("name"));
+                            json.put("amount", set.getString("amount"));
+                            json.put("groupID", set.getString("groupID"));
+                        } catch (SQLException e) {
 
-                       }
+                        }
                         bytes = builder.append(json.toString()).toString().getBytes();
                         exchange.sendResponseHeaders(200, bytes.length);
                         os.write(bytes);
@@ -188,15 +185,14 @@ public class MyHttpServer {
                 } else if (exchange.getRequestMethod().equalsIgnoreCase("DELETE")) {
                     try {
                         if (Integer.parseInt(uri[3]) == id) {
-                            jdbc.deleteByID(id);
-                            exchange.sendResponseHeaders(204,-1);
-                            server.removeContext("api/item/"+id);
-                        }
-                        else {
+                            jdbc.deleteItemByID(id);
+                            exchange.sendResponseHeaders(204, -1);
+                            server.removeContext("api/item/" + id);
+                        } else {
                             exchange.sendResponseHeaders(404, -1);
                         }
+                    } catch (SQLException e) {
                     }
-                    catch (SQLException e){}
 
 
                 }
@@ -208,13 +204,39 @@ public class MyHttpServer {
         }
     }
 
+    static class GroupHandler implements HttpHandler {
+        public void handle(HttpExchange exchange) throws IOException {
+            StringBuilder builder = new StringBuilder();
+            Headers responseHeaders = exchange.getResponseHeaders();
+            JSONObject json = new JSONObject();
+            byte[] bytes = {};
+            OutputStream os = exchange.getResponseBody();
+
+            os.write(bytes);
+            os.close();
+        }
+    }
+
+    static class GroupIdHandler implements HttpHandler {
+
+        private int id;
+
+        // /api/good/{id}
+        GroupIdHandler(int id) {
+            this.id = id;
+        }
+
+        public void handle(HttpExchange exchange) throws IOException {
+            StringBuilder builder = new StringBuilder();
+            Headers responseHeaders = exchange.getResponseHeaders();
+            JSONObject json = new JSONObject();
+            byte[] bytes = {};
+            OutputStream os = exchange.getResponseBody();
+
+            os.write(bytes);
+            os.close();
+        }
+    }
+
 }
 
-/**
-+ get login
-+ delete /api/good/{id}
-+ get /api/good/{id}
-+ put /api/good
-- post /api/good
-
-*/
