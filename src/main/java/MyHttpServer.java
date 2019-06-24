@@ -91,7 +91,6 @@ public class MyHttpServer {
                     // ---------------------------- POST -----------------------------
                 } else if (exchange.getRequestMethod().equalsIgnoreCase("POST")) {
                     System.out.println(json.toMap());
-                    System.out.println(json.getJSONObject("item").getString("name"));
 
                     try {
                         if (jdbc.getItemByID(json.getInt("id")) != null) {
