@@ -101,7 +101,7 @@ public class MyHttpServer {
                 System.out.println(json.toMap());
 
                 try {
-                    if (jdbc.getItemByID(json.getInt("id")) != null) {
+                    if (jdbc.getItemByID(json.getInt("id")).next()) {
                         if (json.getJSONObject("item").getInt("amount") < 0) {
                             exchange.sendResponseHeaders(409, -1);
                         } else {
@@ -181,11 +181,13 @@ public class MyHttpServer {
             String[] uri = exchange.getRequestURI().toString().split("/");
             byte[] bytes = {};
             OutputStream os = exchange.getResponseBody();
-            if (exchange.getRequestMethod().equalsIgnoreCase("GET")) {
+            try {
+                if (Integer.parseInt(uri[3]) == id && jdbc.getItemByID(id).next()) {
 
-                if (Integer.parseInt(uri[3]) == id) {
-                    json.put("id", id);
-                    try {
+                    if (exchange.getRequestMethod().equalsIgnoreCase("GET")) {
+
+                        json.put("id", id);
+
                         ResultSet set = jdbc.getItemByID(id);
                         set.next();
                         json.put("name", set.getString("name"));
@@ -194,29 +196,33 @@ public class MyHttpServer {
                         json.put("producer", set.getString("producer"));
                         json.put("price", set.getString("price"));
                         json.put("groupID", set.getString("groupID"));
-                    } catch (SQLException e) {
+
+                        bytes = builder.append(json.toString()).toString().getBytes();
+                        exchange.sendResponseHeaders(200, bytes.length);
+                        os.write(bytes);
+                        os.close();
+
+                    } else if (exchange.getRequestMethod().equalsIgnoreCase("DELETE")) {
+                        try {
+                            if (Integer.parseInt(uri[3]) == id) {
+                                jdbc.deleteItemByID(id);
+                                exchange.sendResponseHeaders(204, -1);
+
+                            } else {
+                                exchange.sendResponseHeaders(404, -1);
+                            }
+                        } catch (SQLException e) {
+                        }
+
 
                     }
-                    bytes = builder.append(json.toString()).toString().getBytes();
-                    exchange.sendResponseHeaders(200, bytes.length);
-                    os.write(bytes);
-                    os.close();
+
+
                 } else {
                     exchange.sendResponseHeaders(404, -1);
                 }
-            } else if (exchange.getRequestMethod().equalsIgnoreCase("DELETE")) {
-                try {
-                    if (Integer.parseInt(uri[3]) == id) {
-                        jdbc.deleteItemByID(id);
-                        exchange.sendResponseHeaders(204, -1);
-                        server.removeContext("api/item/" + id);
-                    } else {
-                        exchange.sendResponseHeaders(404, -1);
-                    }
-                } catch (SQLException e) {
-                }
-
-
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
 
 
@@ -241,7 +247,7 @@ public class MyHttpServer {
                 System.out.println(json.toMap());
 
                 try {
-                    if (jdbc.getItemByID(json.getInt("id")) != null) {
+                    if (jdbc.getGroupByID(json.getInt("id")).next()) {
                         jdbc.updateGroupByID
                                 (json.getInt("id"), json.getString("name"), json.getString("description"));
                         exchange.sendResponseHeaders(204, -1);
@@ -303,39 +309,43 @@ public class MyHttpServer {
             String[] uri = exchange.getRequestURI().toString().split("/");
             byte[] bytes = {};
             OutputStream os = exchange.getResponseBody();
-            if (exchange.getRequestMethod().equalsIgnoreCase("GET")) {
+            try {
+                if (Integer.parseInt(uri[3]) == id && jdbc.getGroupByID(id)!=null) {
+                    if (exchange.getRequestMethod().equalsIgnoreCase("GET")) {
 
-                if (Integer.parseInt(uri[3]) == id) {
-                    json.put("id", id);
-                    try {
+
                         ResultSet set = jdbc.getGroupByID(id);
                         set.next();
                         json.put("name", set.getString("name"));
                         json.put("description", set.getString("description"));
 
-                    } catch (SQLException e) {
+
+                        bytes = builder.append(json.toString()).toString().getBytes();
+                        exchange.sendResponseHeaders(200, bytes.length);
+                        os.write(bytes);
+                        os.close();
+
+                    } else if (exchange.getRequestMethod().equalsIgnoreCase("DELETE")) {
+                        try {
+                            if (Integer.parseInt(uri[3]) == id) {
+                                jdbc.deleteGroupByID(id);
+                                exchange.sendResponseHeaders(204, -1);
+                                System.out.println("deleted " + id);
+                                server.removeContext("api/group/" + id);
+                            } else {
+                                exchange.sendResponseHeaders(404, -1);
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+
 
                     }
-                    bytes = builder.append(json.toString()).toString().getBytes();
-                    exchange.sendResponseHeaders(200, bytes.length);
-                    os.write(bytes);
-                    os.close();
                 } else {
                     exchange.sendResponseHeaders(404, -1);
                 }
-            } else if (exchange.getRequestMethod().equalsIgnoreCase("DELETE")) {
-                try {
-                    if (Integer.parseInt(uri[3]) == id) {
-                        jdbc.deleteItemByID(id);
-                        exchange.sendResponseHeaders(204, -1);
-                        server.removeContext("api/group/" + id);
-                    } else {
-                        exchange.sendResponseHeaders(404, -1);
-                    }
-                } catch (SQLException e) {
-                }
-
-
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
 
 

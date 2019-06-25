@@ -93,13 +93,17 @@ public class JDBCservice {
         Statement test = connection.createStatement();
         test.executeUpdate("delete from items where id=" + id + ";");
     }
+    public void deleteGroupByID(int id) throws SQLException {
+        Statement test = connection.createStatement();
+        test.executeUpdate("delete from item_groups where id=" + id + ";");
+    }
 
     public void deleteItemByName(String name) throws SQLException {
         Statement test = connection.createStatement();
         test.executeUpdate("delete from items where name='" + name + "';");
     }
 
-    public void deleteGroupbyID(String name) throws SQLException {
+    public void deleteGroupByName(String name) throws SQLException {
         Statement test = connection.createStatement();
         test.executeUpdate("delete from items where name='" + name + "';");
     }
