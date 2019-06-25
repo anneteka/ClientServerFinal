@@ -97,8 +97,11 @@ public class MyHttpServer {
                             if (json.getJSONObject("item").getInt("amount") < 0) {
                                 exchange.sendResponseHeaders(409, -1);
                             } else {
-                                jdbc.updateItemByID
-                                        (json.getInt("id"), json.getInt("groupID"), json.getString("name"), json.getInt("amount"));
+                                jdbc.updateItemByID(
+                                        json.getInt("id"),
+                                        json.getInt("groupID"),
+                                        json.getString("name"),
+                                        json.getInt("amount"));
                                 exchange.sendResponseHeaders(204, -1);
                             }
                         } else {
