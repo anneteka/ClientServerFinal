@@ -180,6 +180,9 @@ public class MyHttpServer {
                             set.next();
                             json.put("name", set.getString("name"));
                             json.put("amount", set.getString("amount"));
+                            json.put("description", set.getString("description"));
+                            json.put("producer", set.getString("producer"));
+                            json.put("price", set.getString("price"));
                             json.put("groupID", set.getString("groupID"));
                         } catch (SQLException e) {
 
