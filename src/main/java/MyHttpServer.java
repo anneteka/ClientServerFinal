@@ -208,24 +208,85 @@ public class MyHttpServer {
     }
 
     static class GroupHandler implements HttpHandler {
+
         public void handle(HttpExchange exchange) throws IOException {
             StringBuilder builder = new StringBuilder();
             Headers responseHeaders = exchange.getResponseHeaders();
-            JSONObject json = new JSONObject();
-            byte[] bytes = {};
-            OutputStream os = exchange.getResponseBody();
+            JSONObject json = new JSONObject(new JSONTokener(exchange.getRequestBody()));
 
-            os.write(bytes);
-            os.close();
+            if (exchange.getRequestHeaders().get("auth") != null && exchange.getRequestHeaders().get("auth").get(0).equals("unique_token")) {
+
+
+                // ---------------------------- GET -----------------------------
+                if (exchange.getRequestMethod().equalsIgnoreCase("GET")) {
+                    exchange.sendResponseHeaders(404, -1);
+
+                    // ---------------------------- POST -----------------------------
+                } else if (exchange.getRequestMethod().equalsIgnoreCase("POST")) {
+                    System.out.println(json.toMap());
+
+                    try {
+                        if (jdbc.getItemByID(json.getInt("id")) != null) {
+                            if (json.getJSONObject("item").getInt("amount") < 0) {
+                                exchange.sendResponseHeaders(409, -1);
+                            } else {
+                                jdbc.updateItemByID
+                                        (json.getInt("id"), json.getInt("groupID"), json.getString("name"), json.getInt("amount"));
+                                exchange.sendResponseHeaders(204, -1);
+                            }
+                        } else {
+                            exchange.sendResponseHeaders(404, -1);
+                        }
+                    } catch (SQLException e) {
+
+                    }
+
+
+                    // ---------------------------- PUT -----------------------------
+                } else if (exchange.getRequestMethod().equalsIgnoreCase("PUT")) {
+                    System.out.println("put");
+
+
+                    try {
+                        if (json.getInt("amount") < 0) {
+                            exchange.sendResponseHeaders(409, -1);
+                        } else {
+                            int id = jdbc.addItem(json.getString("name"), json.getInt("amount"), json.getInt("groupID"));
+                            System.out.println("id");
+                            builder.append(id);
+                            exchange.sendResponseHeaders(200, builder.toString().getBytes().length);
+                            OutputStream os = exchange.getResponseBody();
+                            os.write(builder.toString().getBytes());
+                            os.close();
+                            server.createContext("/api/item/" + id, new ItemIdHandler(id));
+
+
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                    //  exchange.sendResponseHeaders(200, builder.toString().getBytes().length);
+
+
+                    // ---------------------------- DELETE -----------------------------
+                } else if (exchange.getRequestMethod().equalsIgnoreCase("DELETE")) {
+                    exchange.sendResponseHeaders(404, -1);
+                }
+
+            } else {
+                System.out.println("not auth");
+                exchange.sendResponseHeaders(403, -1);
+            }
+
         }
     }
 
     static class GroupIdHandler implements HttpHandler {
-
         private int id;
 
         // /api/good/{id}
         GroupIdHandler(int id) {
+            System.out.println("new itemIDhandler "+id);
             this.id = id;
         }
 
@@ -233,13 +294,53 @@ public class MyHttpServer {
             StringBuilder builder = new StringBuilder();
             Headers responseHeaders = exchange.getResponseHeaders();
             JSONObject json = new JSONObject();
+            String[] uri = exchange.getRequestURI().toString().split("/");
             byte[] bytes = {};
             OutputStream os = exchange.getResponseBody();
+            if (exchange.getRequestHeaders().get("auth") != null && exchange.getRequestHeaders().get("auth").get(0).equals("unique_token")) {
+                if (exchange.getRequestMethod().equalsIgnoreCase("GET")) {
 
-            os.write(bytes);
-            os.close();
+                    if (Integer.parseInt(uri[3]) == id) {
+                        json.put("id", id);
+                        try {
+                            ResultSet set = jdbc.getItemByID(id);
+                            set.next();
+                            json.put("name", set.getString("name"));
+                            json.put("amount", set.getString("amount"));
+                            json.put("groupID", set.getString("groupID"));
+                        } catch (SQLException e) {
+
+                        }
+                        bytes = builder.append(json.toString()).toString().getBytes();
+                        exchange.sendResponseHeaders(200, bytes.length);
+                        os.write(bytes);
+                        os.close();
+                    } else {
+                        exchange.sendResponseHeaders(404, -1);
+                    }
+                } else if (exchange.getRequestMethod().equalsIgnoreCase("DELETE")) {
+                    try {
+                        if (Integer.parseInt(uri[3]) == id) {
+                            jdbc.deleteItemByID(id);
+                            exchange.sendResponseHeaders(204, -1);
+                            server.removeContext("api/item/" + id);
+                        } else {
+                            exchange.sendResponseHeaders(404, -1);
+                        }
+                    } catch (SQLException e) {
+                    }
+
+
+                }
+            } else {
+                System.out.println("not auth");
+                exchange.sendResponseHeaders(403, -1);
+            }
+
         }
     }
+
+
 
 }
 
