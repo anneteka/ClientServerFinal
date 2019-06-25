@@ -1,4 +1,5 @@
 import com.sun.net.httpserver.*;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -39,6 +40,7 @@ public class MyHttpServer {
 
     public static Map<String, String> queryToMap(String query) {
         Map<String, String> result = new HashMap<String, String>();
+        System.out.println(query);
         for (String param : query.split("&")) {
             String[] entry = param.split("=");
             if (entry.length > 1) {
@@ -89,15 +91,47 @@ public class MyHttpServer {
             StringBuilder builder = new StringBuilder();
             Headers responseHeaders = exchange.getResponseHeaders();
             responseHeaders.add("Access-Control-Allow-Origin", "*");
-            JSONObject json = new JSONObject(new JSONTokener(exchange.getRequestBody()));
 
-
+            System.out.println("handle");
             // ---------------------------- GET -----------------------------
             if (exchange.getRequestMethod().equalsIgnoreCase("GET")) {
-                exchange.sendResponseHeaders(404, -1);
+                try {
+                    Map<String, String> params = MyHttpServer.queryToMap(exchange.getRequestURI().getQuery());
+                    int groupID = Integer.parseInt(params.get("group"));
+                    if (groupID <= 0) {
+                      ResultSet set = jdbc.selectAllFromItems();
+                        JSONArray array = new JSONArray();
+                        while (set.next()){
+                            array.put(item(set));
+                        }
+                        exchange.sendResponseHeaders(200, array.toString().getBytes().length);
+                        OutputStream os = exchange.getResponseBody();
+                        os.write(array.toString().getBytes());
+                        os.close();
 
+                    } else {
+                        if (jdbc.itemByGroupID(groupID).next()){
+                            ResultSet set = jdbc.itemByGroupID(groupID);
+                            JSONArray array = new JSONArray();
+                            while (set.next()){
+                                array.put(item(set));
+                            }
+                            exchange.sendResponseHeaders(200, array.toString().getBytes().length);
+                            OutputStream os = exchange.getResponseBody();
+                            os.write(array.toString().getBytes());
+                            os.close();
+                        }
+                        else {
+                            exchange.sendResponseHeaders(404, -1);
+                        }
+                    }
+                }
+                catch (SQLException e){
+                    e.printStackTrace();
+                }
                 // ---------------------------- POST -----------------------------
             } else if (exchange.getRequestMethod().equalsIgnoreCase("POST")) {
+                JSONObject json = new JSONObject(new JSONTokener(exchange.getRequestBody()));
                 System.out.println(json.toMap());
 
                 try {
@@ -129,6 +163,7 @@ public class MyHttpServer {
 
 
                 try {
+                    JSONObject json = new JSONObject(new JSONTokener(exchange.getRequestBody()));
                     if (json.getInt("amount") < 0) {
                         exchange.sendResponseHeaders(409, -1);
                     } else {
@@ -161,6 +196,16 @@ public class MyHttpServer {
             }
 
 
+        }
+        JSONObject item (ResultSet set) throws SQLException{
+            JSONObject json = new JSONObject();
+            json.put("name", set.getString("name"));
+            json.put("amount", set.getString("amount"));
+            json.put("description", set.getString("description"));
+            json.put("producer", set.getString("producer"));
+            json.put("price", set.getString("price"));
+            json.put("groupID", set.getString("groupID"));
+            return json;
         }
     }
 

@@ -42,7 +42,7 @@ public class JDBCservice {
 
     public ResultSet itemByGroupID(int groupID) throws SQLException {
         Statement test = connection.createStatement();
-        return test.executeQuery("SELECT * FROM items where groupID=" + groupID + ");");
+        return test.executeQuery("SELECT * FROM items where groupID=" + groupID + ";");
     }
 
     public ResultSet selectAllFromGroups() throws SQLException {
