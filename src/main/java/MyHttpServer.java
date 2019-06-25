@@ -194,6 +194,13 @@ public class MyHttpServer {
             } else if (exchange.getRequestMethod().equalsIgnoreCase("DELETE")) {
                 exchange.sendResponseHeaders(404, -1);
             }
+            else {
+                builder.append(exchange.getRequestMethod()).append(" request method");
+                exchange.sendResponseHeaders(404, builder.toString().getBytes().length);
+                OutputStream os = exchange.getResponseBody();
+                os.write(builder.toString().getBytes());
+                os.close();
+            }
 
 
         }
@@ -353,6 +360,7 @@ public class MyHttpServer {
         }
         JSONObject group (ResultSet set) throws SQLException{
             JSONObject json = new JSONObject();
+            json.put("id", set.getInt("id"));
             json.put("name", set.getString("name"));
             json.put("description", set.getString("description"));
             return json;
