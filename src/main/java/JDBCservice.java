@@ -47,7 +47,7 @@ public class JDBCservice {
 
     public ResultSet selectAllFromGroups() throws SQLException {
         Statement test = connection.createStatement();
-        return test.executeQuery("SELECT * FROM groups");
+        return test.executeQuery("SELECT * FROM item_groups");
     }
 
     public ResultSet selectAllFromUsers() throws SQLException {
@@ -59,6 +59,11 @@ public class JDBCservice {
         Statement st = connection.createStatement();
         return st.executeQuery("select * from items where id=" + id + ";");
     }
+    public ResultSet getGroupByID(int id) throws SQLException {
+        Statement st = connection.createStatement();
+        return st.executeQuery("select * from item_groups where id=" + id + ";");
+    }
+
 
     public void updateAmountByID(int id, int updatedAmount) throws SQLException {
         Statement test = connection.createStatement();

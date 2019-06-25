@@ -19,6 +19,7 @@ public class MyHttpServer {
         server = HttpServer.create(new InetSocketAddress(9000), 20);
         server.createContext("/login", new LoginHandler());
         server.createContext("/api/item", new ItemHandler());
+        server.createContext("/api/group", new GroupHandler());
         //server.createContext("/api/item/id", new ItemIdHandler());
         server.start();
         jdbc = new JDBCservice();
@@ -27,6 +28,12 @@ public class MyHttpServer {
             System.out.println(all.getInt("id"));
             ItemIdHandler it = new ItemIdHandler(all.getInt("id"));
             server.createContext("/api/item/" + all.getInt("id"), it);
+        }
+        all = jdbc.selectAllFromGroups();
+        while (all.next()) {
+            System.out.println(all.getInt("id"));
+            GroupIdHandler it = new GroupIdHandler(all.getInt("id"));
+            server.createContext("/api/group/" + all.getInt("id"), it);
         }
     }
 
@@ -165,7 +172,7 @@ public class MyHttpServer {
 
         // /api/good/{id}
         ItemIdHandler(int id) {
-            System.out.println("new itemIDhandler "+id);
+            System.out.println("new itemIDhandler " + id);
             this.id = id;
         }
 
@@ -242,9 +249,9 @@ public class MyHttpServer {
 
                     try {
                         if (jdbc.getItemByID(json.getInt("id")) != null) {
-                                jdbc.updateGroupByID
-                                        (json.getInt("id"), json.getString("name"), json.getString("description"));
-                                exchange.sendResponseHeaders(204, -1);
+                            jdbc.updateGroupByID
+                                    (json.getInt("id"), json.getString("name"), json.getString("description"));
+                            exchange.sendResponseHeaders(204, -1);
 
                         } else {
                             exchange.sendResponseHeaders(404, -1);
@@ -260,22 +267,17 @@ public class MyHttpServer {
 
 
                     try {
-                        if (json.getInt("amount") < 0) {
-                            exchange.sendResponseHeaders(409, -1);
-                        } else {
-                            int id = jdbc.addGroup(
-                                    json.getString("name"),
-                                    json.getString("description"));
-                            System.out.println("id");
-                            builder.append(id);
-                            exchange.sendResponseHeaders(200, builder.toString().getBytes().length);
-                            OutputStream os = exchange.getResponseBody();
-                            os.write(builder.toString().getBytes());
-                            os.close();
-                            server.createContext("/api/item/" + id, new ItemIdHandler(id));
 
-
-                        }
+                        int id = jdbc.addGroup(
+                                json.getString("name"),
+                                json.getString("description"));
+                        System.out.println("id");
+                        builder.append(id);
+                        exchange.sendResponseHeaders(200, builder.toString().getBytes().length);
+                        OutputStream os = exchange.getResponseBody();
+                        os.write(builder.toString().getBytes());
+                        os.close();
+                        server.createContext("/api/group/" + id, new ItemIdHandler(id));
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
@@ -300,7 +302,7 @@ public class MyHttpServer {
 
         // /api/good/{id}
         GroupIdHandler(int id) {
-            System.out.println("new itemIDhandler "+id);
+            System.out.println("new groupIDhandler " + id);
             this.id = id;
         }
 
@@ -317,11 +319,11 @@ public class MyHttpServer {
                     if (Integer.parseInt(uri[3]) == id) {
                         json.put("id", id);
                         try {
-                            ResultSet set = jdbc.getItemByID(id);
+                            ResultSet set = jdbc.getGroupByID(id);
                             set.next();
                             json.put("name", set.getString("name"));
-                            json.put("amount", set.getString("amount"));
-                            json.put("groupID", set.getString("groupID"));
+                            json.put("description", set.getString("description"));
+
                         } catch (SQLException e) {
 
                         }
@@ -337,7 +339,7 @@ public class MyHttpServer {
                         if (Integer.parseInt(uri[3]) == id) {
                             jdbc.deleteItemByID(id);
                             exchange.sendResponseHeaders(204, -1);
-                            server.removeContext("api/item/" + id);
+                            server.removeContext("api/group/" + id);
                         } else {
                             exchange.sendResponseHeaders(404, -1);
                         }
@@ -353,7 +355,6 @@ public class MyHttpServer {
 
         }
     }
-
 
 
 }
