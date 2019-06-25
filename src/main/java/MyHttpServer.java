@@ -118,8 +118,14 @@ public class MyHttpServer {
                         if (json.getInt("amount") < 0) {
                             exchange.sendResponseHeaders(409, -1);
                         } else {
-                            int id = jdbc.addItem(json.getString("name"), json.getInt("amount"), json.getInt("groupID"));
-                            System.out.println("id");
+                            int id = jdbc.addItem(
+                                    json.getString("name"),
+                                    json.getInt("amount"),
+                                    json.getString("description"),
+                                    json.getString("producer"),
+                                    json.getInt("price"),
+                                    json.getInt("groupID"));
+
                             builder.append(id);
                             exchange.sendResponseHeaders(200, builder.toString().getBytes().length);
                             OutputStream os = exchange.getResponseBody();
@@ -227,13 +233,11 @@ public class MyHttpServer {
 
                     try {
                         if (jdbc.getItemByID(json.getInt("id")) != null) {
-                            if (json.getJSONObject("item").getInt("amount") < 0) {
-                                exchange.sendResponseHeaders(409, -1);
-                            } else {
-                                jdbc.updateItemByID
-                                        (json.getInt("id"), json.getInt("groupID"), json.getString("name"), json.getInt("amount"));
-                                exchange.sendResponseHeaders(204, -1);
-                            }
+
+//                                jdbc.updateGroupByID
+//                                        (json.getInt("id"), json.getInt("groupID"), json.getString("name"), json.getInt("amount"));
+//                                exchange.sendResponseHeaders(204, -1);
+
                         } else {
                             exchange.sendResponseHeaders(404, -1);
                         }
@@ -251,7 +255,9 @@ public class MyHttpServer {
                         if (json.getInt("amount") < 0) {
                             exchange.sendResponseHeaders(409, -1);
                         } else {
-                            int id = jdbc.addItem(json.getString("name"), json.getInt("amount"), json.getInt("groupID"));
+                            int id = jdbc.addGroup(
+                                    json.getString("name"),
+                                    json.getString("description"));
                             System.out.println("id");
                             builder.append(id);
                             exchange.sendResponseHeaders(200, builder.toString().getBytes().length);
