@@ -18,27 +18,29 @@ USE `clientserver`;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `item_group`
+-- Table structure for table `item_groups`
 --
 
-DROP TABLE IF EXISTS `item_group`;
+DROP TABLE IF EXISTS `item_groups`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
-CREATE TABLE `item_group` (
+CREATE TABLE `item_groups` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(20) NOT NULL,
+  `description` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `item_group`
+-- Dumping data for table `item_groups`
 --
 
-LOCK TABLES `item_group` WRITE;
-/*!40000 ALTER TABLE `item_group` DISABLE KEYS */;
-/*!40000 ALTER TABLE `item_group` ENABLE KEYS */;
+LOCK TABLES `item_groups` WRITE;
+/*!40000 ALTER TABLE `item_groups` DISABLE KEYS */;
+INSERT INTO `item_groups` VALUES (1,'test',NULL);
+/*!40000 ALTER TABLE `item_groups` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -51,13 +53,16 @@ DROP TABLE IF EXISTS `items`;
 CREATE TABLE `items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(20) NOT NULL,
+  `description` varchar(100) DEFAULT NULL,
   `amount` int(11) NOT NULL,
   `groupID` int(11) NOT NULL,
+  `producer` varchar(20) DEFAULT 'unknown',
+  `price` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `groupID` (`groupID`),
-  CONSTRAINT `items_ibfk_1` FOREIGN KEY (`groupID`) REFERENCES `item_group` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `items_ibfk_1` FOREIGN KEY (`groupID`) REFERENCES `item_groups` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -66,17 +71,18 @@ CREATE TABLE `items` (
 
 LOCK TABLES `items` WRITE;
 /*!40000 ALTER TABLE `items` DISABLE KEYS */;
+INSERT INTO `items` VALUES (3,'kek',NULL,15,1,NULL,0),(5,'helloworld2',NULL,10,1,NULL,0),(6,'helloworld3',NULL,10,1,NULL,0),(7,'helloworld4',NULL,10,1,NULL,0),(8,'helloworld5',NULL,10,1,NULL,0),(9,'helloworld6',NULL,10,1,NULL,0),(10,'helloworld7',NULL,10,1,NULL,0),(11,'testest','something',10,1,'someone',10);
 /*!40000 ALTER TABLE `items` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `user`
+-- Table structure for table `users`
 --
 
-DROP TABLE IF EXISTS `user`;
+DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
-CREATE TABLE `user` (
+CREATE TABLE `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `login` varchar(10) NOT NULL,
   `password` varchar(20) NOT NULL,
@@ -86,12 +92,12 @@ CREATE TABLE `user` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `user`
+-- Dumping data for table `users`
 --
 
-LOCK TABLES `user` WRITE;
-/*!40000 ALTER TABLE `user` DISABLE KEYS */;
-/*!40000 ALTER TABLE `user` ENABLE KEYS */;
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -103,4 +109,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-22 18:35:53
+-- Dump completed on 2019-06-25 19:44:37
