@@ -67,12 +67,16 @@ public class JDBCservice {
 
     public void updateItemByID(int id, String name, int amount, String description, String producer, int price, int groupID) throws SQLException {
         Statement test = connection.createStatement();
-        test.executeUpdate("update items set amount=" + amount + " where id=" + id + ";");
-        test.executeUpdate("update items set name='" + name + "' where id=" + id + ";");
-        test.executeUpdate("update items set desciption='" + description + "' where id=" + id + ";");
-        test.executeUpdate("update items set producer='" + producer + "' where id=" + id + ";");
-        test.executeUpdate("update items set groupID='" + groupID + "' where id=" + id + ";");
-        test.executeUpdate("update items set price='" + price + "' where id=" + id + ";");
+        test.executeUpdate("update items set " +
+                "amount=" + amount + ", name='" + name +"', desciption='" + description + "'" +
+                ", producer='" + producer + "',  groupID='" + groupID + "',  price=" + price +
+                " where id=" + id +  ";");
+     }
+    public void updateGroupByID(int id, String name,String description) throws SQLException {
+        Statement test = connection.createStatement();
+        test.executeUpdate("update items set " +
+                "description='" + description + "', name='" + name +"' where id=" + id + ";");
+
     }
 
     public void updateAmountByName(String name, int updatedAmount) throws SQLException {

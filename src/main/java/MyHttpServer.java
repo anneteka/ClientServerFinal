@@ -242,10 +242,9 @@ public class MyHttpServer {
 
                     try {
                         if (jdbc.getItemByID(json.getInt("id")) != null) {
-
-//                                jdbc.updateGroupByID
-//                                        (json.getInt("id"), json.getInt("groupID"), json.getString("name"), json.getInt("amount"));
-//                                exchange.sendResponseHeaders(204, -1);
+                                jdbc.updateGroupByID
+                                        (json.getInt("id"), json.getString("name"), json.getString("description"));
+                                exchange.sendResponseHeaders(204, -1);
 
                         } else {
                             exchange.sendResponseHeaders(404, -1);
