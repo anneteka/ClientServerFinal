@@ -79,7 +79,7 @@ public class JDBCservice {
      }
     public void updateGroupByID(int id, String name,String description) throws SQLException {
         Statement test = connection.createStatement();
-        test.executeUpdate("update items set " +
+        test.executeUpdate("update item_groups set " +
                 "description='" + description + "', name='" + name +"' where id=" + id + ";");
 
     }
