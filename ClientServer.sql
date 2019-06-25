@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `clientserver` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */;
-USE `clientserver`;
 -- MySQL dump 10.13  Distrib 8.0.13, for Win64 (x86_64)
 --
 -- Host: 127.0.0.1    Database: clientserver
@@ -30,7 +28,7 @@ CREATE TABLE `item_groups` (
   `description` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -39,7 +37,7 @@ CREATE TABLE `item_groups` (
 
 LOCK TABLES `item_groups` WRITE;
 /*!40000 ALTER TABLE `item_groups` DISABLE KEYS */;
-INSERT INTO `item_groups` VALUES (1,'test',NULL);
+INSERT INTO `item_groups` VALUES (2,'test3','description'),(3,'test2','description');
 /*!40000 ALTER TABLE `item_groups` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -61,8 +59,8 @@ CREATE TABLE `items` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `groupID` (`groupID`),
-  CONSTRAINT `items_ibfk_1` FOREIGN KEY (`groupID`) REFERENCES `item_groups` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `items_ibfk_2` FOREIGN KEY (`groupID`) REFERENCES `item_groups` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -71,7 +69,6 @@ CREATE TABLE `items` (
 
 LOCK TABLES `items` WRITE;
 /*!40000 ALTER TABLE `items` DISABLE KEYS */;
-INSERT INTO `items` VALUES (3,'kek',NULL,15,1,NULL,0),(5,'helloworld2',NULL,10,1,NULL,0),(6,'helloworld3',NULL,10,1,NULL,0),(7,'helloworld4',NULL,10,1,NULL,0),(8,'helloworld5',NULL,10,1,NULL,0),(9,'helloworld6',NULL,10,1,NULL,0),(10,'helloworld7',NULL,10,1,NULL,0),(11,'testest','something',10,1,'someone',10);
 /*!40000 ALTER TABLE `items` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -109,4 +106,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-25 19:44:37
+-- Dump completed on 2019-06-25 22:13:33
