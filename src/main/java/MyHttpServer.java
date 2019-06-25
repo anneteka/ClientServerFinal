@@ -67,7 +67,9 @@ public class MyHttpServer {
             OutputStream os = exchange.getResponseBody();
             StringBuilder builder = new StringBuilder();
             Headers responseHeaders = exchange.getResponseHeaders();
+            responseHeaders.add("Access-Control-Allow-Origin", "*");
             responseHeaders.set("Content-Type", "text/plain");
+
             if (params.get("login").equals("admin") && params.get("password").equals("admin")) {
                 builder.append("unique_token");
                 exchange.sendResponseHeaders(201, builder.length());
@@ -86,6 +88,7 @@ public class MyHttpServer {
         public void handle(HttpExchange exchange) throws IOException {
             StringBuilder builder = new StringBuilder();
             Headers responseHeaders = exchange.getResponseHeaders();
+            responseHeaders.add("Access-Control-Allow-Origin", "*");
             JSONObject json = new JSONObject(new JSONTokener(exchange.getRequestBody()));
 
 
@@ -173,6 +176,7 @@ public class MyHttpServer {
         public void handle(HttpExchange exchange) throws IOException {
             StringBuilder builder = new StringBuilder();
             Headers responseHeaders = exchange.getResponseHeaders();
+            responseHeaders.add("Access-Control-Allow-Origin", "*");
             JSONObject json = new JSONObject();
             String[] uri = exchange.getRequestURI().toString().split("/");
             byte[] bytes = {};
@@ -224,6 +228,7 @@ public class MyHttpServer {
         public void handle(HttpExchange exchange) throws IOException {
             StringBuilder builder = new StringBuilder();
             Headers responseHeaders = exchange.getResponseHeaders();
+            responseHeaders.add("Access-Control-Allow-Origin", "*");
             JSONObject json = new JSONObject(new JSONTokener(exchange.getRequestBody()));
 
 
@@ -293,6 +298,7 @@ public class MyHttpServer {
         public void handle(HttpExchange exchange) throws IOException {
             StringBuilder builder = new StringBuilder();
             Headers responseHeaders = exchange.getResponseHeaders();
+            responseHeaders.add("Access-Control-Allow-Origin", "*");
             JSONObject json = new JSONObject();
             String[] uri = exchange.getRequestURI().toString().split("/");
             byte[] bytes = {};
