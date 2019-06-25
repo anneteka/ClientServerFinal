@@ -280,15 +280,30 @@ public class MyHttpServer {
             StringBuilder builder = new StringBuilder();
             Headers responseHeaders = exchange.getResponseHeaders();
             responseHeaders.add("Access-Control-Allow-Origin", "*");
-            JSONObject json = new JSONObject(new JSONTokener(exchange.getRequestBody()));
 
 
             // ---------------------------- GET -----------------------------
             if (exchange.getRequestMethod().equalsIgnoreCase("GET")) {
-                exchange.sendResponseHeaders(404, -1);
+                try {
+                    ResultSet set = jdbc.selectAllFromGroups();
 
+                    JSONArray array = new JSONArray();
+                    while (set.next()) {
+                        array.put(group(set));
+                    }
+                    exchange.sendResponseHeaders(200, array.toString().getBytes().length);
+
+                    OutputStream os = exchange.getResponseBody();
+                    os.write(array.toString().getBytes());
+                    os.close();
+                }
+                catch (SQLException e){
+                    e.printStackTrace();
+                }
                 // ---------------------------- POST -----------------------------
             } else if (exchange.getRequestMethod().equalsIgnoreCase("POST")) {
+                JSONObject json = new JSONObject(new JSONTokener(exchange.getRequestBody()));
+
                 System.out.println(json.toMap());
 
                 try {
@@ -308,6 +323,7 @@ public class MyHttpServer {
                 // ---------------------------- PUT -----------------------------
             } else if (exchange.getRequestMethod().equalsIgnoreCase("PUT")) {
                 System.out.println("put");
+                JSONObject json = new JSONObject(new JSONTokener(exchange.getRequestBody()));
 
 
                 try {
@@ -334,6 +350,12 @@ public class MyHttpServer {
             }
 
 
+        }
+        JSONObject group (ResultSet set) throws SQLException{
+            JSONObject json = new JSONObject();
+            json.put("name", set.getString("name"));
+            json.put("description", set.getString("description"));
+            return json;
         }
     }
 
