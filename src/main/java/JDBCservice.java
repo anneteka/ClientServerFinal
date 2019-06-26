@@ -5,8 +5,8 @@ public class JDBCservice {
 
     public JDBCservice() throws SQLException {
         String user = "root";
-        String password = "root";
-        String connectionURL = "jdbc:mysql://localhost:3306/ClientServer";
+        String password = "";
+        String connectionURL = "jdbc:mysql://localhost:3306/ClientServer?serverTimezone=UTC";
         connection = DriverManager.getConnection(connectionURL, user, password);
 
     }
@@ -73,7 +73,7 @@ public class JDBCservice {
     public void updateItemByID(int id, String name, int amount, String description, String producer, int price, int groupID) throws SQLException {
         Statement test = connection.createStatement();
         test.executeUpdate("update items set " +
-                "amount=" + amount + ", name='" + name +"', desciption='" + description + "'" +
+                "amount=" + amount + ", name='" + name +"', description='" + description + "'" +
                 ", producer='" + producer + "',  groupID='" + groupID + "',  price=" + price +
                 " where id=" + id +  ";");
      }

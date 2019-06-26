@@ -17,7 +17,7 @@ public class MyHttpServer {
     private static HttpServer server;
 
     public static void main(String[] args) throws IOException, SQLException {
-        server = HttpServer.create(new InetSocketAddress(9000), 20);
+        server = HttpServer.create(new InetSocketAddress(80), 20);
         server.createContext("/login", new LoginHandler());
         server.createContext("/api/item", new ItemHandler());
         server.createContext("/api/group", new GroupHandler());
@@ -69,7 +69,6 @@ public class MyHttpServer {
             OutputStream os = exchange.getResponseBody();
             StringBuilder builder = new StringBuilder();
             Headers responseHeaders = exchange.getResponseHeaders();
-            responseHeaders.add("Access-Control-Allow-Origin", "*");
             responseHeaders.set("Content-Type", "text/plain");
 
             if (params.get("login").equals("admin") && params.get("password").equals("admin")) {
@@ -90,9 +89,21 @@ public class MyHttpServer {
         public void handle(HttpExchange exchange) throws IOException {
             StringBuilder builder = new StringBuilder();
             Headers responseHeaders = exchange.getResponseHeaders();
-            responseHeaders.add("Access-Control-Allow-Origin", "*");
+            responseHeaders.set("Access-Control-Allow-Origin", "*");
 
             System.out.println("handle");
+
+            if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
+                responseHeaders.add("Access-Control-Allow-Methods", "GET, OPTIONS, POST, DELETE, PUT");
+                responseHeaders.add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+                byte[] origin = exchange.getRequestHeaders().getFirst("Origin").getBytes();
+                exchange.sendResponseHeaders(200, origin.length);
+                OutputStream os = exchange.getResponseBody();
+                os.write(origin);
+                os.close();
+                return;
+            }
+
             // ---------------------------- GET -----------------------------
             if (exchange.getRequestMethod().equalsIgnoreCase("GET")) {
                 try {
@@ -122,7 +133,12 @@ public class MyHttpServer {
                             os.close();
                         }
                         else {
-                            exchange.sendResponseHeaders(404, -1);
+                            JSONArray array = new JSONArray();
+                            exchange.sendResponseHeaders(200, array.toString().getBytes().length);
+                            OutputStream os = exchange.getResponseBody();
+                            os.write(array.toString().getBytes());
+                            os.close();
+//                            exchange.sendResponseHeaders(404, -1);
                         }
                     }
                 }
@@ -136,7 +152,7 @@ public class MyHttpServer {
 
                 try {
                     if (jdbc.getItemByID(json.getInt("id")).next()) {
-                        if (json.getJSONObject("item").getInt("amount") < 0) {
+                        if (json.getInt("amount") < 0) {
                             exchange.sendResponseHeaders(409, -1);
                         } else {
                             jdbc.updateItemByID(
@@ -153,7 +169,7 @@ public class MyHttpServer {
                         exchange.sendResponseHeaders(404, -1);
                     }
                 } catch (SQLException e) {
-
+                    System.out.println(e.getMessage());
                 }
 
 
@@ -212,6 +228,7 @@ public class MyHttpServer {
             json.put("producer", set.getString("producer"));
             json.put("price", set.getString("price"));
             json.put("groupID", set.getString("groupID"));
+            json.put("id", set.getInt("id"));
             return json;
         }
     }
@@ -228,7 +245,19 @@ public class MyHttpServer {
         public void handle(HttpExchange exchange) throws IOException {
             StringBuilder builder = new StringBuilder();
             Headers responseHeaders = exchange.getResponseHeaders();
-            responseHeaders.add("Access-Control-Allow-Origin", "*");
+            responseHeaders.set("Access-Control-Allow-Origin", "*");
+
+            if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
+                responseHeaders.add("Access-Control-Allow-Methods", "GET, OPTIONS, POST, DELETE, PUT");
+                responseHeaders.add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+                byte[] origin = exchange.getRequestHeaders().getFirst("Origin").getBytes();
+                exchange.sendResponseHeaders(200, origin.length);
+                OutputStream os = exchange.getResponseBody();
+                os.write(origin);
+                os.close();
+                return;
+            }
+
             JSONObject json = new JSONObject();
             String[] uri = exchange.getRequestURI().toString().split("/");
             byte[] bytes = {};
@@ -286,8 +315,18 @@ public class MyHttpServer {
         public void handle(HttpExchange exchange) throws IOException {
             StringBuilder builder = new StringBuilder();
             Headers responseHeaders = exchange.getResponseHeaders();
-            responseHeaders.add("Access-Control-Allow-Origin", "*");
+            responseHeaders.set("Access-Control-Allow-Origin", "*");
 
+            if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
+                responseHeaders.add("Access-Control-Allow-Methods", "GET, OPTIONS, POST, DELETE, PUT");
+                responseHeaders.add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+                byte[] origin = exchange.getRequestHeaders().getFirst("Origin").getBytes();
+                exchange.sendResponseHeaders(200, origin.length);
+                OutputStream os = exchange.getResponseBody();
+                os.write(origin);
+                os.close();
+                return;
+            }
 
             // ---------------------------- GET -----------------------------
             if (exchange.getRequestMethod().equalsIgnoreCase("GET")) {
@@ -344,7 +383,7 @@ public class MyHttpServer {
                     OutputStream os = exchange.getResponseBody();
                     os.write(builder.toString().getBytes());
                     os.close();
-                    server.createContext("/api/group/" + id, new ItemIdHandler(id));
+                    server.createContext("/api/group/" + id, new GroupIdHandler(id));
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -379,7 +418,19 @@ public class MyHttpServer {
         public void handle(HttpExchange exchange) throws IOException {
             StringBuilder builder = new StringBuilder();
             Headers responseHeaders = exchange.getResponseHeaders();
-            responseHeaders.add("Access-Control-Allow-Origin", "*");
+            responseHeaders.set("Access-Control-Allow-Origin", "*");
+
+            if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
+                responseHeaders.add("Access-Control-Allow-Methods", "GET, OPTIONS, POST, DELETE, PUT");
+                responseHeaders.add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+                byte[] origin = exchange.getRequestHeaders().getFirst("Origin").getBytes();
+                exchange.sendResponseHeaders(200, origin.length);
+                OutputStream os = exchange.getResponseBody();
+                os.write(origin);
+                os.close();
+                return;
+            }
+
             JSONObject json = new JSONObject();
             String[] uri = exchange.getRequestURI().toString().split("/");
             byte[] bytes = {};
